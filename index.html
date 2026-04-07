@@ -527,7 +527,7 @@
                     <p>₦15,000</p>
                     <button onclick="addToCart('Red and black print adire silk', 15000)">Add to Cart</button>
                 </div>
-        </div>
+            </div>
             
     </section>
 
@@ -619,10 +619,115 @@
         }
 
         // Login Modal Logic
-        function toggleLogin() {
-            const modal = document.getElementById('login-modal');
-            modal.classList.toggle('active');
+        <div id="login-modal">
+        <div class="login-box">
+            <i class="fa-solid fa-times close-modal" onclick="toggleLogin()"></i>
+            <img src="logo.jpeg" alt="BFS Clothing Logo" class="login-logo">
+            
+            <h3 id="auth-title" style="margin-bottom: 20px; font-size: 22px;">Sign In</h3>
+            
+            <input type="email" id="auth-email" placeholder="Email Address">
+            <input type="password" id="auth-password" placeholder="Password">
+            
+            <button id="auth-btn" onclick="handleAuth()" style="width: 100%; padding: 15px; margin-bottom: 15px;">Sign In</button>
+            
+            <p id="auth-toggle" onclick="toggleAuthMode()" style="font-size: 13px; cursor: pointer; color: #555;">
+                Don't have an account? <strong style="color: var(--primary);">Create one</strong>
+            </p>
+        </div>
+    </div>
         }
     </script>
+    // Authentication (Login / Register) Logic
+        let isLoginMode = true;
+        let currentUser = localStorage.getItem('bfs_logged_in_user');
+
+        // Check if user is already logged in when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            updateHeaderIcon();
+        });
+
+        // Switch between "Sign In" and "Create Account"
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? 'Sign In' : 'Create an Account';
+            document.getElementById('auth-btn').innerText = isLoginMode ? 'Sign In' : 'Sign Up';
+            
+            if (isLoginMode) {
+                document.getElementById('auth-toggle').innerHTML = 'Don\'t have an account? <strong style="color: var(--primary);">Create one</strong>';
+            } else {
+                document.getElementById('auth-toggle').innerHTML = 'Already have an account? <strong style="color: var(--primary);">Sign In</strong>';
+            }
+        }
+
+        // Handle the button click (Register or Login)
+        function handleAuth() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value.trim();
+
+            if (!email || !password) {
+                alert("Please enter both an email and a password.");
+                return;
+            }
+
+            if (isLoginMode) {
+                // --- LOG IN LOGIC ---
+                const savedAccount = JSON.parse(localStorage.getItem('bfs_account_' + email));
+                
+                if (savedAccount && savedAccount.password === password) {
+                    alert("Welcome back to BFS Clothings!");
+                    localStorage.setItem('bfs_logged_in_user', email);
+                    currentUser = email;
+                    toggleLogin(); // Close modal
+                    updateHeaderIcon(); // Turn icon gold
+                } else {
+                    alert("Incorrect email or password. Please try again.");
+                }
+            } else {
+                // --- SIGN UP LOGIC ---
+                const existingAccount = localStorage.getItem('bfs_account_' + email);
+                if (existingAccount) {
+                    alert("An account with this email already exists. Please sign in.");
+                    toggleAuthMode();
+                    return;
+                }
+
+                // Save new user to browser storage
+                const newUser = { email: email, password: password };
+                localStorage.setItem('bfs_account_' + email, JSON.stringify(newUser));
+                
+                alert("Account created successfully! You can now log in.");
+                
+                // Clear boxes and switch back to login mode
+                document.getElementById('auth-password').value = '';
+                toggleAuthMode(); 
+            }
+        }
+
+        // Update the User Icon in the Header
+        function updateHeaderIcon() {
+            const userIcon = document.querySelector('.fa-user');
+            if (currentUser) {
+                // User is logged in: Make icon gold and change click to Logout
+                userIcon.style.color = 'var(--accent)';
+                userIcon.title = 'Log Out';
+                userIcon.onclick = logoutUser;
+            } else {
+                // No user logged in: Standard black icon, opens Login modal
+                userIcon.style.color = 'var(--primary)';
+                userIcon.title = 'Log In';
+                userIcon.onclick = toggleLogin;
+            }
+        }
+
+        // Log out logic
+        function logoutUser() {
+            if (confirm("Are you sure you want to log out?")) {
+                localStorage.removeItem('bfs_logged_in_user');
+                currentUser = null;
+                updateHeaderIcon();
+                alert("You have been logged out.");
+            }
+        }
 </body>
 </html>
