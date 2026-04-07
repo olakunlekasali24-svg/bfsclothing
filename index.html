@@ -565,13 +565,11 @@
     </div>
 
     <script>
-        // Preloader Logic (Fades out after 2 seconds)
+        // Preloader Logic (Fades out instantly once the page is ready)
         window.addEventListener('load', () => {
-            setTimeout(() => {
-                const preloader = document.getElementById('preloader');
-                preloader.style.opacity = '0';
-                preloader.style.visibility = 'hidden';
-            }, 1500); // 1.5 seconds loading simulation
+            const preloader = document.getElementById('preloader');
+            preloader.style.opacity = '0';
+            preloader.style.visibility = 'hidden';
         });
 
         // Cart Logic
